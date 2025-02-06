@@ -1,7 +1,3 @@
-Here is a README template for your GitHub repository on an AI-based Network Intrusion Detection System (NIDS):
-
----
-
 # AI-Based Network Intrusion Detection System (NIDS)
 
 ## Overview
