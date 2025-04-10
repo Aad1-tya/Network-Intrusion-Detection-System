@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Intrusion Detection System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Navigation */
+        nav {
+            background-color: #1e3a8a;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+                gap: 24px;
+            }
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #bfdbfe;
+        }
+        
+        .menu-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        
+        @media (min-width: 768px) {
+            .menu-button {
+                display: none;
+            }
+        }
+        
+        /* Main content */
+        main {
+            padding: 24px 0;
+        }
+        
+        /* Cards */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            padding: 24px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+        
+        .card-description {
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+        
+        /* Stats cards */
+        .stats-grid {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -8px;
+        }
+        
+        .stat-card {
+            width: 100%;
+            padding: 0 8px;
+            margin-bottom: 16px;
+        }
+        
+        @media (min-width: 768px) {
+            .stat-card {
+                width: 25%;
+            }
+        }
+        
+        .stat-inner {
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .stat-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        /* Status colors */
+        .status-active {
+            background-color: #d1fae5;
+        }
+        
+        .status-active .stat-title {
+            color: #065f46;
+        }
+        
+        .status-active .stat-value {
+            color: #10b981;
+        }
+        
+        .status-traffic {
+            background-color: #dbeafe;
+        }
+        
+        .status-traffic .stat-title {
+            color: #1e40af;
+        }
+        
+        .status-traffic .stat-value {
+            color: #3b82f6;
+        }
+        
+        .status-alerts {
+            background-color: #fef3c7;
+        }
+        
+        .status-alerts .stat-title {
+            color: #92400e;
+        }
+        
+        .status-alerts .stat-value {
+            color: #f59e0b;
+        }
+        
+        .status-critical {
+            background-color: #fee2e2;
+        }
+        
+        .status-critical .stat-title {
+            color: #991b1b;
+        }
+        
+        .status-critical .stat-value {
+            color: #ef4444;
+        }
+        
+        /* Charts grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        @media (min-width: 992px) {
+            .charts-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .chart-container {
+            height: 256px;
+        }
+        
+        /* Table */
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .view-all-button {
+            padding: 8px 16px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .view-all-button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background-color: #f3f4f6;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+        }
+        
+        td {
+            padding: 12px 16px;
+            font-size: 0.875rem;
+            color: #1f2937;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+        }
+        
+        .badge-low {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-high {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .action-button {
+            color: #2563eb;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .action-button:hover {
+            color: #1d4ed8;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 24px;
+        }
+        
+        .footer-container {
+            padding: 24px 20px;
+        }
+        
+        .footer-grid {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        @media (min-width: 768px) {
+            .footer-grid {
+                flex-direction: row;
+            }
+        }
+        
+        .footer-column {
+            margin-bottom: 16px;
+        }
+        
+        .footer-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .footer-text {
+            color: #6b7280;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+        
+        .footer-links a {
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: #2563eb;
+        }
+        
+        .footer-copyright {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container nav-container">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span class="logo-text">NetGuard IDS</span>
+            </div>
+            <div class="nav-links">
+                <a href="#">Dashboard</a>
+                <a href="#">Analytics</a>
+                <a href="#">Logs</a>
+                <a href="#">Settings</a>
+            </div>
+            <button class="menu-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="card">
+            <h1 class="card-title">Network Intrusion Detection System</h1>
+            <p class="card-description">
+                This system uses machine learning models trained on the KDD99 dataset to detect and classify network intrusions in real-time.
+            </p>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-inner status-active">
+                        <h3 class="stat-title">System Status</h3>
+                        <div class="stat-value">Active</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-inner status-traffic">
+                        <h3 class="stat-title">Traffic Analyzed</h3>
+                        <div class="stat-value">1.2 TB</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-inner status-alerts">
+                        <h3 class="stat-title">Alerts (24h)</h3>
+                        <div class="stat-value">47</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-inner status-critical">
+                        <h3 class="stat-title">Critical Threats</h3>
+                        <div class="stat-value">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="card">
+                <h2 class="card-title">Attack Type Distribution</h2>
+                <div class="chart-container">
+                    <canvas id="attackChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h2 class="card-title">Detection Performance</h2>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-header">
+                <h2 class="card-title">Recent Intrusion Alerts</h2>
+                <button class="view-all-button">View All</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Source IP</th>
+                            <th>Destination IP</th>
+                            <th>Protocol</th>
+                            <th>Attack Type</th>
+                            <th>Confidence</th>
+                            <th>Severity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2025-04-04 08:42:15</td>
+                            <td>192.168.1.105</td>
+                            <td>172.16.0.30</td>
+                            <td>TCP</td>
+                            <td>Port Scan</td>
+                            <td>97.8%</td>
+                            <td><span class="badge badge-medium">Medium</span></td>
+                            <td><button class="action-button">Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>2025-04-04 08:37:22</td>
+                            <td>10.0.0.12</td>
+                            <td>192.168.1.1</td>
+                            <td>UDP</td>
+                            <td>DNS Tunneling</td>
+                            <td>95.2%</td>
+                            <td><span class="badge badge-high">High</span></td>
+                            <td><button class="action-button">Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>2025-04-04 08:35:09</td>
+                            <td>172.16.0.45</td>
+                            <td>192.168.1.25</td>
+                            <td>ICMP</td>
+                            <td>Ping Sweep</td>
+                            <td>92.1%</td>
+                            <td><span class="badge badge-low">Low</span></td>
+                            <td><button class="action-button">Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>2025-04-04 08:28:47</td>
+                            <td>203.0.113.87</td>
+                            <td>192.168.1.15</td>
+                            <td>TCP</td>
+                            <td>SQL Injection</td>
+                            <td>99.1%</td>
+                            <td><span class="badge badge-high">High</span></td>
+                            <td><button class="action-button">Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>2025-04-04 08:15:33</td>
+                            <td>192.168.1.78</td>
+                            <td>172.16.0.12</td>
+                            <td>TCP</td>
+                            <td>DDoS</td>
+                            <td>96.7%</td>
+                            <td><span class="badge badge-high">High</span></td>
+                            <td><button class="action-button">Details</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3 class="footer-title">NetGuard IDS</h3>
+                    <p class="footer-text">Powered by Machine Learning on KDD99 Dataset</p>
+                </div>
+                <div class="footer-column">
+                    <h3 class="footer-title">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-copyright">
+                <p>&copy; 2025 NetGuard IDS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize charts when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Attack Distribution Chart
+            const attackCtx = document.getElementById('attackChart').getContext('2d');
+            const attackChart = new Chart(attackCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['DoS', 'Probe', 'R2L', 'U2R', 'Normal'],
+                    datasets: [{
+                        data: [48, 22, 15, 5, 10],
+                        backgroundColor: [
+                            '#FFA726', // Orange
+                            '#EF5350', // Red
+                            '#42A5F5', // Blue
+                            '#66BB6A', // Green
+                            '#9E9E9E'  // Grey
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+
+            // Performance Chart
+            const perfCtx = document.getElementById('performanceChart').getContext('2d');
+            const perfChart = new Chart(perfCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Accuracy', 'Precision', 'Recall', 'F1 Score'],
+                    datasets: [{
+                        label: 'Model Performance',
+                        data: [96.8, 95.2, 94.7, 94.9],
+                        backgroundColor: '#4C51BF',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
